@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despax Mini - Gestor de Envíos y Etiquetas PDF</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-dark: #1D4ED8;
+            --bg: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 24px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge {
+            background: #DBEAFE;
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 2px;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Estilos sección PDFs de muestra */
+        .muestras-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .muestra-item {
+            border: 1px solid var(--border);
+            background: #F1F5F9;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .muestra-nombre {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1E293B;
+            word-break: break-all;
+        }
+
+        .muestra-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 6px 0 14px 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            border: none;
+            transition: all 0.15s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        .btn-outline:hover {
+            background: #F8FAFC;
+            border-color: #CBD5E1;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Zona de subida */
+        .upload-box {
+            border: 2px dashed #CBD5E1;
+            background: #FAF5FF;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* Tablas */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #F8FAFC;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 12px 14px;
+            border-bottom: 2px solid var(--border);
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: #F8FAFC;
+        }
+
+        .tag-sku {
+            background: #E2E8F0;
+            font-family: monospace;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-ok {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        .status-ready {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+
+        /* Formulario horizontal */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            background: #F8FAFC;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .form-control {
+            padding: 8px 10px;
+            font-size: 13px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            outline: none;
+            background: white;
+        }
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+        }
+
+        /* Modal simple para inspección de texto */
+        #modal-texto {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            max-width: 650px;
+            width: 100%;
+            padding: 24px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            margin: 16px 0;
+            background: #0F172A;
+            color: #F8FAFC;
+            padding: 14px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-box">
+            <h1>Despax Mini</h1>
+            <span class="badge">Versión Básica Local</span>
+        </div>
+        <div class="subtitle">
+            Base de datos SQLite local + Procesador de Etiquetas PDF
+        </div>
+    </header>
+
+    <div class="grid-layout">
+
+        <!-- 1. SECCIÓN: MUESTRAS DE PDF Y PROCESADOR -->
+        <section class="card">
+            <div class="card-header">
+                <h2 class="card-title">📄 PDFs de Prueba y Procesador de Rótulos</h2>
+                <span class="badge" style="background:#E0E7FF; color:#3730A3;">pypdf + reportlab</span>
+            </div>
+            <p class="subtitle" style="margin-bottom: 16px;">
+                Hacé clic en <strong>"Ver Original"</strong> para inspeccionar la etiqueta de prueba, o en <strong>"Anotar / Sellar"</strong> para aplicar el sello automático de verificación y descargarlo listo para impresión.
+            </p>
+
+            <div class="muestras-grid">
+                {% for m in muestras %}
+                <div class="muestra-item">
+                    <div>
+                        <div class="muestra-nombre">{{ m.nombre }}</div>
+                        <div class="muestra-meta">Tamaño: {{ m.tamanio_kb }} KB | Formato: PDF Vectorial</div>
+                    </div>
+                    <div class="btn-group">
+                        <a href="{{ m.url }}" target="_blank" class="btn btn-outline">👁️ Ver Original</a>
+                        <button type="button" class="btn btn-outline" onclick="verTextoPDF('{{ m.nombre }}')">🔍 Extraer Texto</button>
+                        <form action="/procesar_pdf" method="POST" style="margin:0;">
+                            <input type="hidden" name="muestra_seleccionada" value="{{ m.nombre }}">
+                            <button type="submit" class="btn btn-primary">✓ Anotar / Sellar</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Subir PDF Propio -->
+            <div class="upload-box">
+                <h3 style="font-size: 14px; margin-bottom: 6px;">¿Tenés un PDF propio para probar?</h3>
+                <form action="/procesar_pdf" method="POST" enctype="multipart/form-data" style="display:flex; justify-content:center; gap:12px; align-items:center; flex-wrap:wrap;">
+                    <input type="file" name="archivo_pdf" accept="application/pdf" required class="form-control" style="max-width:320px;">
+                    <button type="submit" class="btn btn-success">📤 Subir, Sellar y Descargar</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 2. SECCIÓN: BASE DE DATOS LOCAL - CATÁLOGO DE PRODUCTOS -->
+        <section class="card">
+            <div class="card-header">
+                <h2 class="card-title">📦 Catálogo de Productos (SQLite Local)</h2>
+                <span style="font-size:12px; color:var(--text-muted);">Tabla: <code>productos</code> en <code>despax_local.db</code></span>
+            </div>
+
+            <!-- Formulario para agregar producto -->
+            <form action="/api/productos" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>SKU Código</label>
+                        <input type="text" name="sku" placeholder="Ej: REM-AZU-L" required class="form-control">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Nombre del Producto</label>
+                        <input type="text" name="nombre" placeholder="Ej: Remera Estampada Clásica" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <input type="text" name="categoria" placeholder="Remeras" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Talle</label>
+                        <input type="text" name="talle" placeholder="M" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <input type="text" name="color" placeholder="Negro" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock</label>
+                        <input type="number" name="stock" value="10" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Precio ($)</label>
+                        <input type="number" step="0.5" name="precio" value="15000" class="form-control">
+                    </div>
+                    <div class="form-group" style="justify-content: flex-end;">
+                        <button type="submit" class="btn btn-primary">+ Guardar</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Producto</th>
+                            <th>Categoría</th>
+                            <th>Talle</th>
+                            <th>Color</th>
+                            <th>Stock</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in productos %}
+                        <tr>
+                            <td><span class="tag-sku">{{ p.codigo_sku }}</span></td>
+                            <td><strong>{{ p.nombre }}</strong></td>
+                            <td>{{ p.categoria }}</td>
+                            <td>{{ p.talle }}</td>
+                            <td>{{ p.color }}</td>
+                            <td>{{ p.stock }} un.</td>
+                            <td>${{ "{:,.2f}".format(p.precio) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. SECCIÓN: ENVÍOS REGISTRADOS -->
+        <section class="card">
+            <div class="card-header">
+                <h2 class="card-title">🚚 Envíos y Seguimientos (SQLite Local)</h2>
+                <span style="font-size:12px; color:var(--text-muted);">Tabla: <code>envios</code></span>
+            </div>
+
+            <form action="/api/envios" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>N° Seguimiento</label>
+                        <input type="text" name="nro_seguimiento" placeholder="TN-102938" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Destinatario</label>
+                        <input type="text" name="destinatario" placeholder="Nombre y Apellido" required class="form-control">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Dirección y Ciudad</label>
+                        <input type="text" name="direccion" placeholder="Calle 123, Localidad" required class="form-control">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Items / Prendas</label>
+                        <input type="text" name="items" placeholder="1x REM-NEG-M, 1x BUZ-CAP-M" required class="form-control">
+                    </div>
+                    <div class="form-group" style="justify-content: flex-end;">
+                        <button type="submit" class="btn btn-primary">+ Registrar Envío</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N° Guía / Tracking</th>
+                            <th>Destinatario</th>
+                            <th>Dirección</th>
+                            <th>Contenido Declarado</th>
+                            <th>Estado</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in envios %}
+                        <tr>
+                            <td><strong style="color:var(--primary);">{{ e.nro_seguimiento }}</strong></td>
+                            <td>{{ e.destinatario }}</td>
+                            <td>{{ e.direccion }}</td>
+                            <td><span style="font-size:13px; color:#475569;">{{ e.items }}</span></td>
+                            <td>
+                                <span class="status-pill {% if e.estado == 'Despachado' %}status-ok{% else %}status-ready{% endif %}">
+                                    {{ e.estado }}
+                                </span>
+                            </td>
+                            <td style="font-size:12px; color:var(--text-muted);">{{ e.creado_en }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- MODAL DE INSPECCIÓN DE TEXTO EXTRAÍDO -->
+    <div id="modal-texto">
+        <div class="modal-content">
+            <h3 id="modal-titulo">Texto extraído del PDF</h3>
+            <div id="modal-cuerpo" class="modal-body">Cargando...</div>
+            <div style="text-align: right;">
+                <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function verTextoPDF(nombreArchivo) {
+            const modal = document.getElementById('modal-texto');
+            const titulo = document.getElementById('modal-titulo');
+            const cuerpo = document.getElementById('modal-cuerpo');
+
+            titulo.innerText = 'Texto extraído de: ' + nombreArchivo;
+            cuerpo.innerText = 'Extrayendo capas de texto con pypdf...';
+            modal.style.display = 'flex';
+
+            try {
+                const res = await fetch('/api/extraer_texto', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({muestra: nombreArchivo})
+                });
+                const data = await res.json();
+                cuerpo.innerText = data.texto || 'No se encontró texto seleccionable en este documento.';
+            } catch (err) {
+                cuerpo.innerText = 'Error al extraer texto: ' + err;
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-texto').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>
