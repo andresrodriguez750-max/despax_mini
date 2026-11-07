@@ -1,9 +1,10 @@
 import os
+import io
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, redirect, url_for
 from database import init_db, listar_productos, agregar_producto, listar_envios, registrar_envio
 from pdf_processor import asegurar_muestras_pdf, anotar_pdf, extraer_texto_pdf, MUESTRAS_DIR
-import io
+import pypdf
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'despax-mini-secret-key-2026'
@@ -80,7 +81,7 @@ def procesar_pdf():
     muestra_nombre = request.form.get("muestra_seleccionada")
 
     pdf_bytes = None
-    nombre_salida = "pdf_anotado.pdf"
+    nombre_salida = "etiquetas_anotadas.pdf"
 
     if archivo and archivo.filename != "":
         pdf_bytes = archivo.read()
@@ -94,10 +95,7 @@ def procesar_pdf():
     if not pdf_bytes:
         return "Por favor subí un archivo PDF o seleccioná una muestra.", 400
 
-    # Extraer texto para registrarlo o analizarlo
-    texto_extraido = extraer_texto_pdf(pdf_bytes)
-
-    # Anotar / estampar con Despax
+    # Anotar / estampar con sello Despax
     pdf_resultado = anotar_pdf(pdf_bytes, texto_estampa="DESPAX VERIFICADO")
 
     return send_file(
@@ -106,6 +104,62 @@ def procesar_pdf():
         as_attachment=True,
         download_name=nombre_salida
     )
+
+@app.route("/api/diagnostico", methods=["POST"])
+def api_diagnostico():
+    """Inspecciona un PDF y devuelve métricas: páginas, transportistas detectados y texto."""
+    archivo = request.files.get("archivo_pdf")
+    muestra_nombre = request.form.get("muestra_seleccionada")
+
+    pdf_bytes = None
+    nombre = "archivo.pdf"
+
+    if archivo and archivo.filename != "":
+        pdf_bytes = archivo.read()
+        nombre = archivo.filename
+    elif muestra_nombre:
+        ruta_muestra = MUESTRAS_DIR / muestra_nombre
+        if ruta_muestra.exists():
+            pdf_bytes = ruta_muestra.read_bytes()
+            nombre = muestra_nombre
+
+    if not pdf_bytes:
+        return jsonify({"error": "No se recibió archivo PDF"}), 400
+
+    try:
+        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+        num_paginas = len(reader.pages)
+        texto_completo = ""
+        for p in reader.pages:
+            texto_completo += (p.extract_text() or "") + " "
+
+        transportistas = []
+        texto_lower = texto_completo.lower()
+        if "tiendanube" in texto_lower or "tn-" in texto_lower:
+            transportistas.append("Tiendanube Envíos")
+        if "oca" in texto_lower:
+            transportistas.append("OCA Express Pak")
+        if "andreani" in texto_lower or "and-" in texto_lower:
+            transportistas.append("Andreani")
+        if not transportistas:
+            transportistas.append("Estándar / Genérico")
+
+        # Detectar órdenes o SKUs
+        import re
+        ordenes_match = re.findall(r'(TN-\d+|OCA-\d+|AND-\d+|#\d+)', texto_completo)
+        ordenes = list(set(ordenes_match))
+
+        return jsonify({
+            "ok": True,
+            "nombre": nombre,
+            "paginas": num_paginas,
+            "transportistas": ", ".join(transportistas),
+            "ordenes": ordenes,
+            "ordenes_count": len(ordenes),
+            "tamano_hoja": f"{int(float(reader.pages[0].mediabox.width))} x {int(float(reader.pages[0].mediabox.height))} pt"
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/extraer_texto", methods=["POST"])
 def api_extraer_texto():

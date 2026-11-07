@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 120" width="460" height="120">
+  <defs>
+    <style>
+      .ink { fill: #07131d; }
+      .cyan { fill: #4ec5d8; }
+      .light-ink { fill: #edf6f3; }
+    </style>
+  </defs>
+
+  <!-- ISOTIPO 'D' (Comanda con líneas de pedido) -->
+  <g id="letter-D" transform="translate(10, 15)">
+    <!-- Marco de la D (Bracket comanda angular) -->
+    <path class="ink" d="M 0 0 L 48 0 L 66 18 L 66 70 L 48 88 L 0 88 L 0 74 L 42 74 L 52 64 L 52 24 L 42 14 L 0 14 Z" />
+    
+    <!-- 3 Líneas de Comanda Cian -->
+    <rect class="cyan" x="4" y="24" width="34" height="8" rx="2" />
+    <rect class="cyan" x="4" y="40" width="34" height="8" rx="2" />
+    <rect class="cyan" x="4" y="56" width="34" height="8" rx="2" />
+  </g>
+
+  <!-- LETRA 'e' -->
+  <g id="letter-e" transform="translate(95, 37)">
+    <path class="ink" d="M 12 0 L 40 0 L 52 12 L 52 54 L 40 66 L 12 66 L 0 54 L 0 12 Z M 14 14 L 14 26 L 38 26 L 38 14 Z M 14 40 L 14 52 L 38 52 L 38 40 Z" />
+    <rect class="ink" x="0" y="26" width="52" height="14" />
+  </g>
+
+  <!-- LETRA 's' -->
+  <g id="letter-s" transform="translate(160, 37)">
+    <path class="ink" d="M 12 0 L 50 0 L 50 14 L 16 14 L 16 26 L 40 26 L 52 38 L 52 54 L 40 66 L 0 66 L 0 52 L 36 52 L 36 40 L 12 40 L 0 28 L 0 12 Z" />
+  </g>
+
+  <!-- LETRA 'p' -->
+  <g id="letter-p" transform="translate(225, 37)">
+    <path class="ink" d="M 0 0 L 38 0 L 50 12 L 50 38 L 38 50 L 14 50 L 14 88 L 0 88 Z M 14 14 L 14 36 L 36 36 L 36 14 Z" />
+  </g>
+
+  <!-- LETRA 'a' -->
+  <g id="letter-a" transform="translate(290, 37)">
+    <path class="ink" d="M 12 0 L 40 0 L 52 12 L 52 66 L 38 66 L 38 52 L 14 52 L 0 38 L 0 12 Z M 14 14 L 14 38 L 38 38 L 38 14 Z" />
+  </g>
+
+  <!-- LETRA 'x' (Con Checkmark Cian de Despacho) -->
+  <g id="letter-x" transform="translate(355, 37)">
+    <!-- Brazo inferior izquierdo y central en tinta oscura -->
+    <path class="ink" d="M 0 66 L 16 66 L 32 44 L 21 29 L 8 47 L 0 47 Z" />
+    <path class="ink" d="M 0 0 L 16 0 L 26 15 L 18 26 Z" />
+    <path class="ink" d="M 36 66 L 52 66 L 32 38 L 24 49 Z" />
+    
+    <!-- Checkmark Cian integrado en el aspa superior derecha -->
+    <path class="cyan" d="M 14 26 L 27 44 L 62 0 L 46 0 L 25 28 L 19 20 Z" />
+  </g>
+</svg>

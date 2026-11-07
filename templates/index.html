@@ -1,554 +1,660 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Despax Mini - Gestor de Envíos y Etiquetas PDF</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #2563EB;
-            --primary-dark: #1D4ED8;
-            --bg: #F8FAFC;
-            --card-bg: #FFFFFF;
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --border: #E2E8F0;
-            --success: #10B981;
-            --warning: #F59E0B;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            padding: 24px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 28px;
-            padding-bottom: 16px;
-            border-bottom: 2px solid var(--border);
-        }
-
-        .logo-box {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .badge {
-            background: #DBEAFE;
-            color: var(--primary-dark);
-            font-size: 12px;
-            font-weight: 700;
-            padding: 4px 8px;
-            border-radius: 6px;
-            text-transform: uppercase;
-        }
-
-        h1 {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-
-        .subtitle {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-top: 2px;
-        }
-
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 18px;
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* Estilos sección PDFs de muestra */
-        .muestras-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-
-        .muestra-item {
-            border: 1px solid var(--border);
-            background: #F1F5F9;
-            border-radius: 8px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .muestra-nombre {
-            font-weight: 600;
-            font-size: 14px;
-            color: #1E293B;
-            word-break: break-all;
-        }
-
-        .muestra-meta {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin: 6px 0 14px 0;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            text-decoration: none;
-            border: none;
-            transition: all 0.15s ease;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-outline {
-            background: white;
-            color: var(--text-main);
-            border: 1px solid var(--border);
-        }
-        .btn-outline:hover {
-            background: #F8FAFC;
-            border-color: #CBD5E1;
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        /* Zona de subida */
-        .upload-box {
-            border: 2px dashed #CBD5E1;
-            background: #FAF5FF;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-top: 10px;
-        }
-
-        /* Tablas */
-        .table-responsive {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        th {
-            background: #F8FAFC;
-            color: var(--text-muted);
-            font-weight: 600;
-            padding: 12px 14px;
-            border-bottom: 2px solid var(--border);
-            text-transform: uppercase;
-            font-size: 11px;
-            letter-spacing: 0.05em;
-        }
-
-        td {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        tr:hover td {
-            background: #F8FAFC;
-        }
-
-        .tag-sku {
-            background: #E2E8F0;
-            font-family: monospace;
-            font-weight: bold;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        .status-pill {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .status-ok {
-            background: #D1FAE5;
-            color: #065F46;
-        }
-        .status-ready {
-            background: #FEF3C7;
-            color: #92400E;
-        }
-
-        /* Formulario horizontal */
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 12px;
-            background: #F8FAFC;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-            border: 1px solid var(--border);
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .form-group label {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .form-control {
-            padding: 8px 10px;
-            font-size: 13px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            outline: none;
-            background: white;
-        }
-        .form-control:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
-        }
-
-        /* Modal simple para inspección de texto */
-        #modal-texto {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 100;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 10px;
-            max-width: 650px;
-            width: 100%;
-            padding: 24px;
-            max-height: 85vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-body {
-            overflow-y: auto;
-            margin: 16px 0;
-            background: #0F172A;
-            color: #F8FAFC;
-            padding: 14px;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Despax — Analizador de Pedidos y Etiquetas</title>
+  <link rel="icon" type="image/png" href="/static/img/favicon_mark.png">
+  <script>
+    (function() {
+      var t = localStorage.getItem('despax-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <link rel="stylesheet" href="/static/despax_workflow.css">
+  <link rel="stylesheet" href="/static/despax_theme.css">
+  <link rel="stylesheet" href="/static/despax_ui_inline.css">
+  <style>
+    /* Estilos complementarios para panel de muestras y catálogo */
+    .muestras-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .muestra-card-item {
+      background: var(--surface-2, rgba(255,255,255,0.03));
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: border-color 0.15s ease;
+    }
+    .muestra-card-item:hover {
+      border-color: var(--accent, #2f80ed);
+    }
+    .muestra-card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      word-break: break-all;
+      margin-bottom: 4px;
+    }
+    .muestra-card-meta {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .muestra-btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .btn-action-sm {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      transition: all 0.15s ease;
+    }
+    .btn-action-sm:hover {
+      background: var(--surface-2);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .btn-action-primary-sm {
+      background: var(--accent, #2f80ed);
+      color: #fff;
+      border-color: var(--accent, #2f80ed);
+    }
+    .btn-action-primary-sm:hover {
+      background: #1d6ed8;
+      color: #fff;
+    }
+    .form-inline-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      padding: 14px;
+      background: var(--surface-2, rgba(255,255,255,0.02));
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .form-field-unit {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-field-unit label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-field-unit input, .form-field-unit select {
+      padding: 7px 10px;
+      font-size: 12.5px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+    }
+    .form-field-unit input:focus, .form-field-unit select:focus {
+      border-color: var(--accent);
+    }
+    .tag-sku-badge {
+      display: inline-block;
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 11.5px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(47, 128, 237, 0.12);
+      color: var(--accent, #2f80ed);
+      border: 1px solid rgba(47, 128, 237, 0.25);
+    }
+    .modal-backdrop-custom {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-box-custom {
+      background: var(--surface, #121E2C);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      max-width: 680px;
+      width: 100%;
+      padding: 24px;
+      color: var(--text);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .modal-code-area {
+      background: #09101A;
+      color: #94A3B8;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      max-height: 50vh;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      margin: 14px 0;
+    }
+  </style>
 </head>
-<body>
+<body class="workflow-page">
+<div class="wrap app-shell">
 
-    <header>
-        <div class="logo-box">
-            <h1>Despax Mini</h1>
-            <span class="badge">Versión Básica Local</span>
-        </div>
-        <div class="subtitle">
-            Base de datos SQLite local + Procesador de Etiquetas PDF
-        </div>
-    </header>
+  <!-- HEADER PRINCIPAL AUTÉNTICO DESPAX -->
+  <header>
+    <div class="header-brand">
+      <div class="tag logo-tag">
+        <img src="/static/img/despax_logo.png" alt="Despax" class="despax-header-logo despax-logo-light">
+        <img src="/static/img/despax_logo_dark.png" alt="Despax" class="despax-header-logo despax-logo-dark">
+      </div>
+      <h1>Analizador de Pedidos y Etiquetas</h1>
+      <p class="sub">Comandas claras, etiquetas precisas, despachos sin errores</p>
+    </div>
+    
+    <div class="header-actions">
+      <!-- Badge de Estado SQLite Local -->
+      <div style="display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 20px; background: rgba(57, 217, 138, 0.12); border: 1px solid rgba(57, 217, 138, 0.3); font-size: 12px; font-weight: 600; color: var(--green, #39d98a);">
+        <span style="width: 7px; height: 7px; border-radius: 50%; background: var(--green, #39d98a);"></span>
+        <span>SQLite Local Activa</span>
+      </div>
 
-    <div class="grid-layout">
+      <!-- Alternador de Tema (Light / Dark) -->
+      <button class="header-btn-historial" type="button" onclick="toggleTheme()" title="Cambiar tema Claro / Oscuro">
+        <svg id="themeIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <span>Tema</span>
+      </button>
 
-        <!-- 1. SECCIÓN: MUESTRAS DE PDF Y PROCESADOR -->
-        <section class="card">
-            <div class="card-header">
-                <h2 class="card-title">📄 PDFs de Prueba y Procesador de Rótulos</h2>
-                <span class="badge" style="background:#E0E7FF; color:#3730A3;">pypdf + reportlab</span>
+      <!-- Perfil de Usuario -->
+      <div style="display: flex; align-items: center; gap: 8px; padding: 4px 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 24px;">
+        <span style="width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px;">AR</span>
+        <span style="font-size: 13px; font-weight: 600; color: var(--text);">Andrés Rodríguez</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="workspace-content">
+  
+    <!-- PANELES LADO A LADO -->
+    <div class="panels-side-by-side">
+      
+      <!-- Panel 1: Etiquetas de Envío -->
+      <div class="card" id="cardEtiquetas" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="icon-holder">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><circle cx="7" cy="7" r=".5" fill="currentColor"/></svg>
+              </span>
+              <span>Etiquetas de Envío</span>
             </div>
-            <p class="subtitle" style="margin-bottom: 16px;">
-                Hacé clic en <strong>"Ver Original"</strong> para inspeccionar la etiqueta de prueba, o en <strong>"Anotar / Sellar"</strong> para aplicar el sello automático de verificación y descargarlo listo para impresión.
+            <span style="font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase;">Procesador PDF</span>
+          </div>
+
+          <!-- DROPZONE OFICIAL DESPAX -->
+          <form id="formProcesar" action="/procesar_pdf" method="POST" enctype="multipart/form-data">
+            <div class="drop" id="dzEtiquetas" onclick="document.getElementById('etiquetasIn').click()">
+              <input type="file" id="etiquetasIn" name="archivo_pdf" accept=".pdf" style="display: none;" onchange="manejarArchivoSeleccionado(this)">
+              <div class="drop-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              </div>
+              <div class="drop-hint">
+                <span class="hint-desktop">Arrastrá el PDF de etiquetas o <strong>hacé clic para elegir</strong></span>
+                <span class="hint-touch">Tocá acá para <strong>seleccionar tu archivo PDF</strong></span>
+              </div>
+              <div class="drop-name" id="dzEtiquetasName" style="font-weight: 700; color: var(--accent); margin-top: 6px;"></div>
+            </div>
+
+            <div class="field-row" style="margin-top: 14px;">
+              <span class="field-lbl">Organización:</span>
+              <select id="modoOrganizacion" class="field-in">
+                <option value="1">1 etiqueta por hoja (térmico 10x15 / sin reorganizar)</option>
+                <option value="3">3 etiquetas por hoja (horizontal A4)</option>
+              </select>
+            </div>
+
+            <input type="hidden" name="muestra_seleccionada" id="muestraSeleccionadaInput" value="">
+            
+            <div style="margin-top: 18px; display: flex; gap: 10px;">
+              <button type="submit" class="action-btn" id="btnProcesarPdf" style="flex: 1; margin: 0;">
+                <span class="btn-txt">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  Procesar y Sellar Rótulo
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Panel 2: Control de Calidad y Muestras de Prueba -->
+      <div class="card companion-card" id="cardDiagnostico" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <!-- Cabecera de Selector -->
+          <div class="card-title" style="justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="icon-holder" style="background: rgba(47, 128, 237, 0.12); color: var(--accent); border-color: rgba(47, 128, 237, 0.28);">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </span>
+              <span>Control de Calidad y Muestras</span>
+            </div>
+
+            <div class="panel-tab-toggle">
+              <button type="button" class="panel-tab-btn active" id="tabBtnMuestras" onclick="switchTab('muestras')">
+                Muestras PDF
+              </button>
+              <button type="button" class="panel-tab-btn" id="tabBtnDiag" onclick="switchTab('diag')">
+                Diagnóstico
+              </button>
+            </div>
+          </div>
+
+          <!-- TAB 1: MUESTRAS RÁPIDAS -->
+          <div id="vistaMuestras">
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 10px;">
+              Probá el flujo completo con las etiquetas de prueba generadas por el sistema:
             </p>
-
-            <div class="muestras-grid">
-                {% for m in muestras %}
-                <div class="muestra-item">
-                    <div>
-                        <div class="muestra-nombre">{{ m.nombre }}</div>
-                        <div class="muestra-meta">Tamaño: {{ m.tamanio_kb }} KB | Formato: PDF Vectorial</div>
-                    </div>
-                    <div class="btn-group">
-                        <a href="{{ m.url }}" target="_blank" class="btn btn-outline">👁️ Ver Original</a>
-                        <button type="button" class="btn btn-outline" onclick="verTextoPDF('{{ m.nombre }}')">🔍 Extraer Texto</button>
-                        <form action="/procesar_pdf" method="POST" style="margin:0;">
-                            <input type="hidden" name="muestra_seleccionada" value="{{ m.nombre }}">
-                            <button type="submit" class="btn btn-primary">✓ Anotar / Sellar</button>
-                        </form>
-                    </div>
+            <div class="muestras-grid-container">
+              {% for m in muestras %}
+              <div class="muestra-card-item">
+                <div>
+                  <div class="muestra-card-title">{{ m.nombre }}</div>
+                  <div class="muestra-card-meta">{{ m.tamanio_kb }} KB &bull; PDF Vectorial</div>
                 </div>
-                {% endfor %}
-            </div>
-
-            <!-- Subir PDF Propio -->
-            <div class="upload-box">
-                <h3 style="font-size: 14px; margin-bottom: 6px;">¿Tenés un PDF propio para probar?</h3>
-                <form action="/procesar_pdf" method="POST" enctype="multipart/form-data" style="display:flex; justify-content:center; gap:12px; align-items:center; flex-wrap:wrap;">
-                    <input type="file" name="archivo_pdf" accept="application/pdf" required class="form-control" style="max-width:320px;">
-                    <button type="submit" class="btn btn-success">📤 Subir, Sellar y Descargar</button>
-                </form>
-            </div>
-        </section>
-
-        <!-- 2. SECCIÓN: BASE DE DATOS LOCAL - CATÁLOGO DE PRODUCTOS -->
-        <section class="card">
-            <div class="card-header">
-                <h2 class="card-title">📦 Catálogo de Productos (SQLite Local)</h2>
-                <span style="font-size:12px; color:var(--text-muted);">Tabla: <code>productos</code> en <code>despax_local.db</code></span>
-            </div>
-
-            <!-- Formulario para agregar producto -->
-            <form action="/api/productos" method="POST">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>SKU Código</label>
-                        <input type="text" name="sku" placeholder="Ej: REM-AZU-L" required class="form-control">
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Nombre del Producto</label>
-                        <input type="text" name="nombre" placeholder="Ej: Remera Estampada Clásica" required class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Categoría</label>
-                        <input type="text" name="categoria" placeholder="Remeras" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Talle</label>
-                        <input type="text" name="talle" placeholder="M" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Color</label>
-                        <input type="text" name="color" placeholder="Negro" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Stock</label>
-                        <input type="number" name="stock" value="10" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Precio ($)</label>
-                        <input type="number" step="0.5" name="precio" value="15000" class="form-control">
-                    </div>
-                    <div class="form-group" style="justify-content: flex-end;">
-                        <button type="submit" class="btn btn-primary">+ Guardar</button>
-                    </div>
+                <div class="muestra-btn-group">
+                  <a href="{{ m.url }}" target="_blank" class="btn-action-sm">👁️ Ver</a>
+                  <button type="button" class="btn-action-sm" onclick="verTextoModal('{{ m.nombre }}')">🔍 Texto</button>
+                  <button type="button" class="btn-action-sm btn-action-primary-sm" onclick="seleccionarMuestra('{{ m.nombre }}')">⚡ Cargar</button>
                 </div>
-            </form>
-
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>SKU</th>
-                            <th>Producto</th>
-                            <th>Categoría</th>
-                            <th>Talle</th>
-                            <th>Color</th>
-                            <th>Stock</th>
-                            <th>Precio</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for p in productos %}
-                        <tr>
-                            <td><span class="tag-sku">{{ p.codigo_sku }}</span></td>
-                            <td><strong>{{ p.nombre }}</strong></td>
-                            <td>{{ p.categoria }}</td>
-                            <td>{{ p.talle }}</td>
-                            <td>{{ p.color }}</td>
-                            <td>{{ p.stock }} un.</td>
-                            <td>${{ "{:,.2f}".format(p.precio) }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+              </div>
+              {% endfor %}
             </div>
-        </section>
+          </div>
 
-        <!-- 3. SECCIÓN: ENVÍOS REGISTRADOS -->
-        <section class="card">
-            <div class="card-header">
-                <h2 class="card-title">🚚 Envíos y Seguimientos (SQLite Local)</h2>
-                <span style="font-size:12px; color:var(--text-muted);">Tabla: <code>envios</code></span>
+          <!-- TAB 2: DIAGNÓSTICO EN VIVO -->
+          <div id="vistaDiagnostico" style="display: none;">
+            <div id="diagStateIdle" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 28px 14px; border: 1.5px dashed var(--border-2, var(--border)); border-radius: 10px; background: rgba(11, 26, 43, 0.4);">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color: var(--muted); margin-bottom: 8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <h4 style="font-size: 13.5px; font-weight: 700; color: var(--text); margin-bottom: 4px;">Sin archivo inspeccionado</h4>
+              <p style="font-size: 11.5px; color: var(--muted); margin: 0;">Cargá una muestra o subí tu propio PDF para analizar páginas, órdenes y logística.</p>
             </div>
 
-            <form action="/api/envios" method="POST">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>N° Seguimiento</label>
-                        <input type="text" name="nro_seguimiento" placeholder="TN-102938" required class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label>Destinatario</label>
-                        <input type="text" name="destinatario" placeholder="Nombre y Apellido" required class="form-control">
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Dirección y Ciudad</label>
-                        <input type="text" name="direccion" placeholder="Calle 123, Localidad" required class="form-control">
-                    </div>
-                    <div class="form-group" style="grid-column: span 2;">
-                        <label>Items / Prendas</label>
-                        <input type="text" name="items" placeholder="1x REM-NEG-M, 1x BUZ-CAP-M" required class="form-control">
-                    </div>
-                    <div class="form-group" style="justify-content: flex-end;">
-                        <button type="submit" class="btn btn-primary">+ Registrar Envío</button>
-                    </div>
+            <div id="diagStateActive" style="display: none; flex-direction: column; gap: 10px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="diag-metric-card">
+                  <div class="diag-metric-icon">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                  </div>
+                  <div>
+                    <span class="diag-metric-val" id="diagNumPaginas">0</span>
+                    <span class="diag-metric-lbl">Páginas de Rótulos</span>
+                  </div>
                 </div>
-            </form>
-
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>N° Guía / Tracking</th>
-                            <th>Destinatario</th>
-                            <th>Dirección</th>
-                            <th>Contenido Declarado</th>
-                            <th>Estado</th>
-                            <th>Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for e in envios %}
-                        <tr>
-                            <td><strong style="color:var(--primary);">{{ e.nro_seguimiento }}</strong></td>
-                            <td>{{ e.destinatario }}</td>
-                            <td>{{ e.direccion }}</td>
-                            <td><span style="font-size:13px; color:#475569;">{{ e.items }}</span></td>
-                            <td>
-                                <span class="status-pill {% if e.estado == 'Despachado' %}status-ok{% else %}status-ready{% endif %}">
-                                    {{ e.estado }}
-                                </span>
-                            </td>
-                            <td style="font-size:12px; color:var(--text-muted);">{{ e.creado_en }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <div class="diag-metric-card">
+                  <div class="diag-metric-icon" style="color: var(--green); background: rgba(57, 217, 138, 0.14);">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <div>
+                    <span class="diag-metric-val" id="diagNumOrdenes">0</span>
+                    <span class="diag-metric-lbl">Órdenes detectadas</span>
+                  </div>
+                </div>
+              </div>
+              <div class="diag-details-box">
+                <div class="diag-detail-row">
+                  <span class="diag-detail-label">Empresas logísticas:</span>
+                  <span class="diag-detail-value" id="diagLogistica">—</span>
+                </div>
+                <div class="diag-detail-row">
+                  <span class="diag-detail-label">Medida de hoja:</span>
+                  <span class="diag-detail-value" id="diagMedida">—</span>
+                </div>
+              </div>
             </div>
-        </section>
+          </div>
 
-    </div>
-
-    <!-- MODAL DE INSPECCIÓN DE TEXTO EXTRAÍDO -->
-    <div id="modal-texto">
-        <div class="modal-content">
-            <h3 id="modal-titulo">Texto extraído del PDF</h3>
-            <div id="modal-cuerpo" class="modal-body">Cargando...</div>
-            <div style="text-align: right;">
-                <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cerrar</button>
-            </div>
         </div>
+
+        <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 5px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            Validación de integridad previa al sellado
+          </span>
+        </div>
+      </div>
+
     </div>
 
-    <script>
-        async function verTextoPDF(nombreArchivo) {
-            const modal = document.getElementById('modal-texto');
-            const titulo = document.getElementById('modal-titulo');
-            const cuerpo = document.getElementById('modal-cuerpo');
+    <!-- SECCIÓN 3: CATÁLOGO DE PRODUCTOS (SQLITE LOCAL) -->
+    <div class="card" style="margin-top: 24px; padding: 24px;">
+      <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="icon-holder">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </span>
+          <span>Catálogo de Productos y SKUs (Base de Datos Local)</span>
+        </div>
+        <span style="font-size: 12px; color: var(--muted);">Tabla: <code>productos</code> en <code>despax_local.db</code></span>
+      </div>
 
-            titulo.innerText = 'Texto extraído de: ' + nombreArchivo;
-            cuerpo.innerText = 'Extrayendo capas de texto con pypdf...';
-            modal.style.display = 'flex';
+      <!-- Formulario para agregar producto -->
+      <form action="/api/productos" method="POST">
+        <div class="form-inline-grid">
+          <div class="form-field-unit">
+            <label>Código SKU</label>
+            <input type="text" name="sku" placeholder="Ej: REM-NEG-XL" required>
+          </div>
+          <div class="form-field-unit" style="grid-column: span 2;">
+            <label>Nombre del Producto</label>
+            <input type="text" name="nombre" placeholder="Ej: Remera Manga Corta Algodón" required>
+          </div>
+          <div class="form-field-unit">
+            <label>Categoría</label>
+            <input type="text" name="categoria" placeholder="Remeras">
+          </div>
+          <div class="form-field-unit">
+            <label>Talle</label>
+            <input type="text" name="talle" placeholder="XL">
+          </div>
+          <div class="form-field-unit">
+            <label>Color</label>
+            <input type="text" name="color" placeholder="Negro">
+          </div>
+          <div class="form-field-unit">
+            <label>Stock</label>
+            <input type="number" name="stock" value="15">
+          </div>
+          <div class="form-field-unit">
+            <label>Precio ($)</label>
+            <input type="number" step="0.5" name="precio" value="16500">
+          </div>
+          <div class="form-field-unit" style="justify-content: flex-end;">
+            <button type="submit" class="btn-action-sm btn-action-primary-sm" style="padding: 8px 12px; height: 35px; justify-content: center;">
+              + Guardar
+            </button>
+          </div>
+        </div>
+      </form>
 
-            try {
-                const res = await fetch('/api/extraer_texto', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({muestra: nombreArchivo})
-                });
-                const data = await res.json();
-                cuerpo.innerText = data.texto || 'No se encontró texto seleccionable en este documento.';
-            } catch (err) {
-                cuerpo.innerText = 'Error al extraer texto: ' + err;
-            }
-        }
+      <!-- Tabla de productos -->
+      <div class="tbl-wrap" style="max-height: 320px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Descripción</th>
+              <th>Categoría</th>
+              <th>Talle</th>
+              <th>Color</th>
+              <th>Stock</th>
+              <th>Precio</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in productos %}
+            <tr>
+              <td><span class="tag-sku-badge">{{ p.codigo_sku }}</span></td>
+              <td><strong>{{ p.nombre }}</strong></td>
+              <td>{{ p.categoria }}</td>
+              <td>{{ p.talle }}</td>
+              <td>{{ p.color }}</td>
+              <td>{{ p.stock }} un.</td>
+              <td>${{ "{:,.2f}".format(p.precio) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        function cerrarModal() {
-            document.getElementById('modal-texto').style.display = 'none';
-        }
-    </script>
+    <!-- SECCIÓN 4: LOTES DE DESPACHO Y ENVÍOS (SQLITE LOCAL) -->
+    <div class="card" style="margin-top: 24px; padding: 24px;">
+      <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="icon-holder">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <span>Lotes de Despacho y Envíos Registrados</span>
+        </div>
+        <span style="font-size: 12px; color: var(--muted);">Tabla: <code>envios</code></span>
+      </div>
+
+      <!-- Formulario para agregar envío -->
+      <form action="/api/envios" method="POST">
+        <div class="form-inline-grid">
+          <div class="form-field-unit">
+            <label>N° Seguimiento</label>
+            <input type="text" name="nro_seguimiento" placeholder="TN-293841" required>
+          </div>
+          <div class="form-field-unit">
+            <label>Destinatario</label>
+            <input type="text" name="destinatario" placeholder="Nombre completo" required>
+          </div>
+          <div class="form-field-unit" style="grid-column: span 2;">
+            <label>Dirección y Localidad</label>
+            <input type="text" name="direccion" placeholder="Calle 456, CABA" required>
+          </div>
+          <div class="form-field-unit" style="grid-column: span 2;">
+            <label>Items / Contenido</label>
+            <input type="text" name="items" placeholder="2x REM-NEG-XL, 1x GOR-TRU-U" required>
+          </div>
+          <div class="form-field-unit" style="justify-content: flex-end;">
+            <button type="submit" class="btn-action-sm btn-action-primary-sm" style="padding: 8px 12px; height: 35px; justify-content: center;">
+              + Registrar
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Tabla de envíos -->
+      <div class="tbl-wrap" style="max-height: 280px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Tracking / Guía</th>
+              <th>Destinatario</th>
+              <th>Dirección de Entrega</th>
+              <th>Contenido</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for e in envios %}
+            <tr>
+              <td><strong style="color: var(--accent);">{{ e.nro_seguimiento }}</strong></td>
+              <td>{{ e.destinatario }}</td>
+              <td>{{ e.direccion }}</td>
+              <td style="color: var(--muted);">{{ e.items }}</td>
+              <td>
+                <span class="sub-status-badge" style="background: rgba(57, 217, 138, 0.15); color: var(--green, #39d98a); border: 1px solid rgba(57, 217, 138, 0.3); padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">
+                  {{ e.estado }}
+                </span>
+              </td>
+              <td style="font-size: 11.5px; color: var(--muted);">{{ e.creado_en }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER GLOBAL AUTÉNTICO DESPAX -->
+  <footer class="despax-global-footer">
+    <div class="despax-footer-top">
+      <div class="despax-footer-brand">
+        <div class="despax-footer-logo-row">
+          <img src="/static/img/despax_logo.png" alt="Despax" class="despax-footer-logo despax-logo-light">
+          <img src="/static/img/despax_logo_dark.png" alt="Despax" class="despax-footer-logo despax-logo-dark">
+          <span class="despax-footer-badge">Despax Mini &bull; Local</span>
+        </div>
+        <p class="despax-footer-tagline">
+          Optimización logística, base de datos local y rótulos sin errores.
+        </p>
+      </div>
+    </div>
+    <div class="despax-footer-bottom">
+      <p class="despax-footer-copy">&copy; 2026 Despax. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+</div>
+
+<!-- MODAL DE INSPECCIÓN DE TEXTO -->
+<div id="modalTexto" class="modal-backdrop-custom">
+  <div class="modal-box-custom">
+    <h3 id="modalTitulo" style="font-size: 16px; font-weight: 700;">Inspección de Capas de Texto</h3>
+    <div id="modalCuerpo" class="modal-code-area">Extrayendo texto...</div>
+    <div style="text-align: right;">
+      <button type="button" class="btn-action-sm" onclick="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleTheme() {
+    var actual = document.documentElement.getAttribute('data-theme') || 'dark';
+    var nuevo = (actual === 'dark') ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nuevo);
+    localStorage.setItem('despax-theme', nuevo);
+  }
+
+  function switchTab(tab) {
+    var btnMuestras = document.getElementById('tabBtnMuestras');
+    var btnDiag = document.getElementById('tabBtnDiag');
+    var vistaMuestras = document.getElementById('vistaMuestras');
+    var vistaDiag = document.getElementById('vistaDiagnostico');
+
+    if (tab === 'muestras') {
+      btnMuestras.classList.add('active');
+      btnDiag.classList.remove('active');
+      vistaMuestras.style.display = 'block';
+      vistaDiag.style.display = 'none';
+    } else {
+      btnDiag.classList.add('active');
+      btnMuestras.classList.remove('active');
+      vistaDiag.style.display = 'block';
+      vistaMuestras.style.display = 'none';
+    }
+  }
+
+  function manejarArchivoSeleccionado(input) {
+    if (input.files && input.files[0]) {
+      var file = input.files[0];
+      document.getElementById('dzEtiquetasName').innerText = '✓ Archivo cargado: ' + file.name;
+      document.getElementById('muestraSeleccionadaInput').value = '';
+      ejecutarDiagnostico(file, null);
+    }
+  }
+
+  function seleccionarMuestra(nombre) {
+    document.getElementById('muestraSeleccionadaInput').value = nombre;
+    document.getElementById('dzEtiquetasName').innerText = '⚡ Muestra seleccionada: ' + nombre;
+    document.getElementById('etiquetasIn').value = '';
+    ejecutarDiagnostico(null, nombre);
+  }
+
+  async function ejecutarDiagnostico(file, muestraNombre) {
+    switchTab('diag');
+    var formData = new FormData();
+    if (file) {
+      formData.append('archivo_pdf', file);
+    } else if (muestraNombre) {
+      formData.append('muestra_seleccionada', muestraNombre);
+    }
+
+    try {
+      var res = await fetch('/api/diagnostico', { method: 'POST', body: formData });
+      var data = await res.json();
+      if (data.ok) {
+        document.getElementById('diagStateIdle').style.display = 'none';
+        document.getElementById('diagStateActive').style.display = 'flex';
+        document.getElementById('diagNumPaginas').innerText = data.paginas;
+        document.getElementById('diagNumOrdenes').innerText = data.ordenes_count;
+        document.getElementById('diagLogistica').innerText = data.transportistas;
+        document.getElementById('diagMedida').innerText = data.tamano_hoja;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function verTextoModal(muestra) {
+    var modal = document.getElementById('modalTexto');
+    var cuerpo = document.getElementById('modalCuerpo');
+    document.getElementById('modalTitulo').innerText = 'Texto extraído de: ' + muestra;
+    cuerpo.innerText = 'Extrayendo capas de texto con pypdf...';
+    modal.style.display = 'flex';
+
+    try {
+      var res = await fetch('/api/extraer_texto', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ muestra: muestra })
+      });
+      var data = await res.json();
+      cuerpo.innerText = data.texto || 'No se encontró texto en el documento.';
+    } catch(err) {
+      cuerpo.innerText = 'Error al extraer texto: ' + err;
+    }
+  }
+
+  function cerrarModal() {
+    document.getElementById('modalTexto').style.display = 'none';
+  }
+
+  // Soporte Drag & Drop en el dropzone
+  var dropzone = document.getElementById('dzEtiquetas');
+  ['dragenter', 'dragover'].forEach(function(evt) {
+    dropzone.addEventListener(evt, function(e) {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+  });
+  ['dragleave', 'drop'].forEach(function(evt) {
+    dropzone.addEventListener(evt, function(e) {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+    });
+  });
+  dropzone.addEventListener('drop', function(e) {
+    var dt = e.dataTransfer;
+    var files = dt.files;
+    if (files.length > 0) {
+      document.getElementById('etiquetasIn').files = files;
+      manejarArchivoSeleccionado(document.getElementById('etiquetasIn'));
+    }
+  });
+</script>
 
 </body>
 </html>

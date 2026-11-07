@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Isotipo D comanda: Letra en Azul Oscuro (#07131d) y Detalles en Azul Cian (#4ec5d8) -->
+  <g transform="translate(10, 10)">
+    <!-- Estructura de la D en Azul Oscuro -->
+    <path d="M 0 0 L 28 0 L 42 14 L 42 30 L 28 44 L 0 44 L 0 35 L 24 35 L 33 26 L 33 18 L 24 9 L 0 9 Z" 
+          fill="#07131d" />
+    
+    <!-- 3 Líneas de Comanda en Azul Cian -->
+    <rect x="-4" y="14" width="27" height="4.5" rx="2.25" fill="#4ec5d8" />
+    <rect x="-4" y="21" width="27" height="4.5" rx="2.25" fill="#4ec5d8" />
+    <rect x="-4" y="28" width="27" height="4.5" rx="2.25" fill="#4ec5d8" />
+  </g>
+</svg>
