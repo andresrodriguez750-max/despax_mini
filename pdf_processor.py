@@ -74,71 +74,154 @@ def generar_pdf_tiendanube(ruta_destino: Path):
     c.save()
 
 def generar_pdf_oca(ruta_destino: Path):
-    """Genera una etiqueta de despacho de prueba estilo OCA."""
-    c = canvas.Canvas(str(ruta_destino), pagesize=(283, 425))
-    w, h = 283, 425
+    """
+    Genera una etiqueta/comanda de despacho de OCA e-Pak oficial con su estructura real:
+    - Encabezado violeta OCA Pak con código OR y número de operación.
+    - Guía de 19 dígitos (9380100000000000507-1) con código de barras Code 128.
+    - Cuadrícula: DOC. CLIENTE (orden 11225), BULTO (1/1), OPERATIVA (471048), PESO (1,85 kg).
+    - Código de planta destino (A-PQC-D15P) y tipo de servicio (Domicilio).
+    - Datos completos de destinatario y remitente.
+    - Comanda de contenido declarado de prendas vinculadas al catálogo local.
+    - Código QR de trazabilidad logística OCA.
+    """
+    # 283 x 480 pt (formato térmico estándar 10x17 cm aprox)
+    w, h = 283, 480
+    c = canvas.Canvas(str(ruta_destino), pagesize=(w, h))
 
-    # Marco
-    c.setStrokeColor(colors.HexColor("#780016"))
-    c.setLineWidth(3)
-    c.rect(10, 10, w - 20, h - 20)
+    # Marco exterior
+    c.setStrokeColor(colors.black)
+    c.setLineWidth(1.5)
+    c.rect(8, 8, w - 16, h - 16)
 
-    # Logo / Header OCA
-    c.setFillColor(colors.HexColor("#A3001E"))
-    c.rect(10, h - 45, w - 20, 35, fill=True, stroke=False)
+    # 1. HEADER OFICIAL OCA (Violeta Institucional #2E1461)
+    c.setFillColor(colors.HexColor("#2E1461"))
+    c.rect(8, h - 50, 115, 42, fill=True, stroke=False)
     c.setFillColor(colors.white)
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(25, h - 30, "OCA EXPRESS PAK")
+    c.setFont("Helvetica-Bold", 17)
+    c.drawString(18, h - 33, "OCA Pak")
 
-    # Tracking
+    # Recuadro "OR" (Origen Retiro / Puerta a Puerta)
+    c.setFillColor(colors.HexColor("#E2E8F0"))
+    c.rect(123, h - 50, 42, 42, fill=True, stroke=False)
     c.setFillColor(colors.black)
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(20, h - 65, "N° GUÍA: OCA-892341")
+    c.setFont("Helvetica-Bold", 14)
+    c.drawCentredString(144, h - 33, "OR")
 
-    # Simulación de código de barras
-    bar_x = 25
-    import random
-    random.seed(99)
-    for _ in range(42):
-        c.setLineWidth(random.choice([1, 2, 4]))
-        c.line(bar_x, h - 75, bar_x, h - 110)
-        bar_x += random.choice([4, 5])
+    # Número de operación OCA destacado
+    c.setFont("Helvetica-Bold", 16)
+    c.drawRightString(w - 16, h - 33, "148526656")
 
     c.setStrokeColor(colors.black)
     c.setLineWidth(1)
-    c.line(10, h - 120, w - 10, h - 120)
+    c.line(8, h - 50, w - 8, h - 50)
 
-    # Remitente
-    c.setFont("Helvetica-Bold", 8)
-    c.drawString(20, h - 135, "REMITENTE: Despax E-Commerce Indumentaria")
-    c.setFont("Helvetica", 8)
-    c.drawString(20, h - 147, "Palermo Soho, CABA (CP 1414)")
-
-    c.line(10, h - 157, w - 10, h - 157)
-
-    # Destino
+    # 2. GUÍA OCA Y CÓDIGO DE BARRAS
     c.setFont("Helvetica-Bold", 10)
-    c.drawString(20, h - 175, "ENTREGAR A:")
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(20, h - 192, "Martín Gómez")
+    c.drawString(16, h - 68, "GUIA: 9380100000000000507-1")
+
+    # Simulación gráfica precisa de barras Code 128
+    bar_x = 18
+    import random
+    random.seed(11225)
+    for _ in range(48):
+        bw = random.choice([1, 1.5, 2, 3])
+        c.setLineWidth(bw)
+        c.line(bar_x, h - 76, bar_x, h - 108)
+        bar_x += random.choice([3.5, 5, 6])
+        if bar_x > w - 24:
+            break
+
+    c.line(8, h - 114, w - 8, h - 114)
+
+    # 3. CUADRÍCULA OCA: DOC CLIENTE | BULTO | OPERATIVA | PESO
+    c.setFont("Helvetica-Bold", 7.5)
+    c.drawString(14, h - 126, "DOC. CLIENTE")
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(14, h - 140, "11225")
+
+    c.line(85, h - 114, 85, h - 146)
+    c.setFont("Helvetica-Bold", 7.5)
+    c.drawString(92, h - 126, "BULTO")
     c.setFont("Helvetica", 10)
-    c.drawString(20, h - 208, "Av. Santa Fe 2341 - 2do A")
-    c.drawString(20, h - 223, "CABA, Capital Federal (CP 1123)")
+    c.drawString(98, h - 140, "1/1")
 
-    c.line(10, h - 235, w - 10, h - 235)
+    c.line(145, h - 114, 145, h - 146)
+    c.setFont("Helvetica-Bold", 7.5)
+    c.drawString(152, h - 126, "OPERATIVA")
+    c.setFont("Helvetica", 10)
+    c.drawString(155, h - 140, "471048")
 
-    # Items
-    c.setFont("Helvetica-Bold", 9)
-    c.drawString(20, h - 252, "ITEMS DECLARADOS:")
+    c.line(215, h - 114, 215, h - 146)
+    c.setFont("Helvetica-Bold", 7.5)
+    c.drawString(222, h - 126, "PESO")
+    c.setFont("Helvetica-Bold", 10)
+    c.drawString(222, h - 140, "1.85 kg")
+
+    c.line(8, h - 146, w - 8, h - 146)
+
+    # 4. SUCURSAL / PLANTA DESTINO
+    c.setFont("Helvetica-Bold", 7.5)
+    c.drawString(14, h - 158, "PLANTA / SUCURSAL DESTINO:")
+    c.setFont("Helvetica-Bold", 13)
+    c.drawString(140, h - 160, "A-PQC-D15P")
+    c.setFont("Helvetica-Oblique", 8)
+    c.drawString(14, h - 172, "SERVICIO: DOMICILIO DEL DESTINATARIO (ESTÁNDAR)")
+
+    c.line(8, h - 178, w - 8, h - 178)
+
+    # 5. DESTINATARIO
+    c.setFont("Helvetica-Bold", 8)
+    c.drawString(14, h - 190, "ENTREGAR A (DESTINATARIO):")
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(14, h - 204, "María Cevallos")
     c.setFont("Helvetica", 9)
-    c.drawString(25, h - 270, "- 1x REM-NEG-M (Remera Oversize Negra M)")
-    c.drawString(25, h - 286, "- 1x GOR-TRU-U (Gorra Trucker Azul)")
+    c.drawString(14, h - 217, "Av. Álvarez Thomas 1440 - Piso 3 Dpto B")
+    c.drawString(14, h - 230, "Capital Federal, CABA (CP 1427)")
+    c.drawString(14, h - 243, "Tel: +54 9 11 5897-9758")
 
-    c.rect(15, 30, w - 30, 45)
-    c.setFont("Helvetica-Bold", 9)
-    c.drawCentredString(w / 2, 58, "CONTROL DE CALIDAD: OK")
+    c.line(8, h - 250, w - 8, h - 250)
+
+    # 6. REMITENTE
+    c.setFont("Helvetica-Bold", 8)
+    c.drawString(14, h - 262, "REMITENTE:")
     c.setFont("Helvetica", 8)
-    c.drawCentredString(w / 2, 40, "Paquete verificado en depósito")
+    c.drawString(14, h - 273, "Despax E-Commerce Indumentaria SRL - CUIT: 30-71882941-4")
+    c.drawString(14, h - 284, "Sucursal Origen: VSF (Villa Santa Rita / Flores)")
+
+    c.line(8, h - 292, w - 8, h - 292)
+
+    # 7. COMANDA / DETALLE DE CONTENIDO DECLARADO (PICKING DE PRENDAS)
+    c.setFillColor(colors.HexColor("#F8FAFC"))
+    c.rect(8, h - 410, w - 16, 118, fill=True, stroke=False)
+    c.setFillColor(colors.black)
+
+    c.setFont("Helvetica-Bold", 8.5)
+    c.drawString(14, h - 305, "COMANDA DE PREPARACIÓN / CONTENIDO DECLARADO:")
+    c.setFont("Helvetica", 8)
+    c.drawString(18, h - 322, "• 1x REM-NEG-M — Remera Oversize Básica (Negro M)")
+    c.drawString(18, h - 337, "• 1x BUZ-CAP-M — Buzo Hoodie Canguro (Gris M)")
+    c.drawString(18, h - 352, "• 1x GOR-TRU-U — Gorra Trucker Bordada (Azul Único)")
+    c.setFont("Helvetica-Oblique", 7.5)
+    c.setFillColor(colors.darkgray)
+    c.drawString(18, h - 370, "Orden vinculada: #11225 Tiendanube | Embalaje: Bolsa de seguridad")
+
+    # QR Simulador
+    c.setStrokeColor(colors.black)
+    c.setLineWidth(1)
+    c.rect(w - 75, h - 402, 60, 60, fill=False)
+    c.setFillColor(colors.black)
+    c.setFont("Helvetica-Bold", 7)
+    c.drawCentredString(w - 45, h - 372, "OCA QR")
+    c.setFont("Helvetica", 6)
+    c.drawCentredString(w - 45, h - 382, "TRAZABILIDAD")
+
+    # 8. PIE DE CONTROL
+    c.setFillColor(colors.black)
+    c.line(8, 45, w - 8, 45)
+    c.setFont("Helvetica-Bold", 7.5)
+    c.drawString(14, 30, "CONTROL DE CALIDAD: VERIFICADO")
+    c.setFont("Helvetica", 7)
+    c.drawString(14, 18, "Firma del receptor: _______________________ DNI: __________________")
 
     c.save()
 

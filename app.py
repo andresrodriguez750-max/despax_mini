@@ -31,9 +31,14 @@ def index():
     return render_template("index.html", productos=productos, envios=envios, muestras=muestras)
 
 @app.route("/muestras/<path:filename>")
-def descargar_muestra(filename):
-    """Permite ver o descargar cualquiera de los PDFs de prueba generados."""
+def ver_muestra(filename):
+    """Permite ver en el navegador cualquiera de los PDFs de prueba generados."""
     return send_from_directory(MUESTRAS_DIR, filename, as_attachment=False)
+
+@app.route("/descargar_muestra/<path:filename>")
+def descargar_muestra(filename):
+    """Descarga el PDF de prueba directamente a la computadora como archivo adjunto."""
+    return send_from_directory(MUESTRAS_DIR, filename, as_attachment=True, download_name=filename)
 
 @app.route("/api/productos", methods=["POST"])
 def crear_producto():
